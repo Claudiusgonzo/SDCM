@@ -11,24 +11,27 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace SurfaceDevCenterManager.DevCenterApi
 {
+ 
     internal sealed class DevCenterHandler : IDisposable
     {
         private readonly DelegatingHandler AuthHandler;
         private readonly AuthorizationHandlerCredentials AuthCredentials;
         private readonly TimeSpan HttpTimeout;
         private const int MAX_RETRIES = 10;
+        private const uint DEFAULT_HTTP_TIMEOUT_SECS = 300;
 
         /// <summary>
         /// Creates a new DevCenterHandler using the provided credentials
         /// </summary>
         /// <param name="credentials">Authorization credentials for HWDC</param>
-        public DevCenterHandler(AuthorizationHandlerCredentials credentials)
+        public DevCenterHandler(AuthorizationHandlerCredentials credentials, uint httpTimeoutSecs = DEFAULT_HTTP_TIMEOUT_SECS)
         {
             AuthCredentials = credentials;
-            AuthHandler = new AuthorizationHandler(AuthCredentials);
-            HttpTimeout = TimeSpan.FromSeconds(120);
+            HttpTimeout = TimeSpan.FromSeconds(httpTimeoutSecs);
+            AuthHandler = new AuthorizationHandler(AuthCredentials, httpTimeoutSecs);           
         }
 
         private string GetDevCenterBaseUrl()

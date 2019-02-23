@@ -73,6 +73,7 @@ namespace SurfaceDevCenterManager
         /// <returns>Returns 0 success, non-zero on error</returns>
         private static async Task<ErrorCodes> MainAsync(string[] args)
         {
+            const uint DEFAULT_SERVER_TIMEOUT_SECS = 300;
             ErrorCodes retval = ErrorCodes.SUCCESS;
             bool show_help = false;
             string CreateOption = null;
@@ -90,6 +91,7 @@ namespace SurfaceDevCenterManager
             bool CreateMetaData = false;
             bool AudienceOption = false;
             int OverrideServer = 0;
+            uint ServerTimeoutSecs = DEFAULT_SERVER_TIMEOUT_SECS;
             string CredentialsOption = null;
             string AADAuthenticationOption = null;
 
@@ -113,6 +115,7 @@ namespace SurfaceDevCenterManager
                 { "server=",           "Specify target DevCenter server from CredSelect enum", v => OverrideServer = int.Parse(v)   },
                 { "creds=",            "Option to specify app credentials.  Options: FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
                 { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always, RefreshSession, SelectAccount", v => AADAuthenticationOption = v },
+                { "timeout=",          "Option to specify server timeout in seconds.", v => ServerTimeoutSecs = uint.Parse(v) },
                 { "?",                 "Show this message and exit", v => show_help = v != null },
             };
 
@@ -149,7 +152,7 @@ namespace SurfaceDevCenterManager
                 ErrorParsingOptions("OverrideServer invalid - " + OverrideServer);
                 return ErrorCodes.OVERRIDE_SERVER_INVALID;
             }
-            DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer]);
+            DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer], ServerTimeoutSecs);
 
             if (CreateOption != null && (!File.Exists(CreateOption)))
             {

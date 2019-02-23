@@ -24,17 +24,20 @@ namespace SurfaceDevCenterManager.Utility
     {
         private string _AccessToken;
         private readonly AuthorizationHandlerCredentials AuthCredentials;
+        private readonly TimeSpan HttpTimeout;
 
         private const int MAX_RETRIES = 10;
+        private const uint DEFAULT_HTTP_TIMEOUT_SECS = 300;
 
         /// <summary>
         /// Handles OAuth Tokens for HTTP request to Microsoft Hardware Dev Center
         /// </summary>
         /// <param name="credentials">The set of credentials to use for the token acquitisiton</param>
-        public AuthorizationHandler(AuthorizationHandlerCredentials credentials)
+        public AuthorizationHandler(AuthorizationHandlerCredentials credentials, uint httpTimeoutSecs = DEFAULT_HTTP_TIMEOUT_SECS)
         {
             _AccessToken = null;
             AuthCredentials = credentials;
+            HttpTimeout = TimeSpan.FromSeconds(httpTimeoutSecs);
             InnerHandler = new HttpClientHandler();
         }
 
@@ -121,7 +124,7 @@ namespace SurfaceDevCenterManager.Utility
 
             using (HttpClient client = new HttpClient())
             {
-                client.Timeout = TimeSpan.FromSeconds(120);
+                client.Timeout = HttpTimeout;
                 Uri restApi = new Uri(DevCenterTokenUrl);
 
                 StringContent postcontent = new StringContent("grant_type=client_credentials" +
